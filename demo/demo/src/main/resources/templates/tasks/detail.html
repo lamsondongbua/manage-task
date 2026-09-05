@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title>Chi tiết Task</title></head>
+
+<th:block layout:fragment="page-title">Chi tiết Task</th:block>
+<th:block layout:fragment="page-subtitle" th:text="${task.title}">Task title</th:block>
+
+<th:block layout:fragment="topbar-actions">
+    <div style="display:flex;gap:8px">
+        <a th:href="@{/web/tasks/{id}/edit(id=${task.id})}" class="btn btn-primary btn-sm">
+            <i class="bi bi-pencil"></i> Chỉnh sửa
+        </a>
+        <a th:href="@{/web/tasks}" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="detail-grid">
+        <!-- Left: Main info -->
+        <div class="card">
+            <div class="detail-header">
+                <div>
+                    <h2 class="detail-title" th:text="${task.title}">Task title</h2>
+                    <div class="detail-meta">
+                        <span th:switch="${task.status?.name()}">
+                            <span th:case="'TODO'" class="badge badge-todo"><i class="bi bi-circle"></i> To Do</span>
+                            <span th:case="'IN_PROGRESS'" class="badge badge-in-progress"><i class="bi bi-arrow-repeat"></i> In Progress</span>
+                            <span th:case="'DONE'" class="badge badge-done"><i class="bi bi-check-circle-fill"></i> Done</span>
+                            <span th:case="'CANCELLED'" class="badge badge-cancelled"><i class="bi bi-x-circle-fill"></i> Cancelled</span>
+                        </span>
+                        <span th:switch="${task.priority?.name()}">
+                            <span th:case="'LOW'" class="badge badge-low">Low</span>
+                            <span th:case="'MEDIUM'" class="badge badge-medium">Medium</span>
+                            <span th:case="'HIGH'" class="badge badge-high">High</span>
+                            <span th:case="'URGENT'" class="badge badge-urgent"><i class="bi bi-fire"></i> Urgent</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section-title">Mô tả</div>
+            <p class="detail-description"
+               th:text="${task.description != null and !#strings.isEmpty(task.description) ? task.description : 'Không có mô tả.'}">
+                Description
+            </p>
+        </div>
+
+        <!-- Right: Meta info -->
+        <div>
+            <div class="card">
+                <div class="detail-section-title" style="margin-top:0">Thông tin</div>
+
+                <div style="display:flex;flex-direction:column;gap:16px;margin-top:12px">
+                    <div>
+                        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Dự án</div>
+                        <div class="detail-value"
+                             th:text="${task.project != null ? task.project.name : '—'}">—</div>
+                    </div>
+
+                    <div>
+                        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Người thực hiện</div>
+                        <div class="detail-value"
+                             th:text="${task.user != null ? task.user.name : 'Chưa gán'}">—</div>
+                    </div>
+
+                    <div>
+                        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Hạn chót</div>
+                        <div class="detail-value"
+                             th:text="${task.dueDate != null ? #temporals.format(task.dueDate, 'dd/MM/yyyy') : 'Không có hạn'}">—</div>
+                    </div>
+
+                    <div>
+                        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Ngày tạo</div>
+                        <div class="detail-value"
+                              th:text="${#temporals.format(task.createdAt.atZoneSameInstant(T(java.time.ZoneId).of('Asia/Ho_Chi_Minh')),'dd/MM/yyyy HH:mm')}">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Cập nhật lần cuối</div>
+                        <div class="detail-value"
+                             th:text="${#temporals.format(task.updatedAt.atZoneSameInstant(T(java.time.ZoneId).of('Asia/Ho_Chi_Minh')),'dd/MM/yyyy HH:mm')}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+                <a th:href="@{/web/tasks/{id}/edit(id=${task.id})}" class="btn btn-primary" style="justify-content:center">
+                    <i class="bi bi-pencil"></i> Chỉnh sửa Task
+                </a>
+                <form th:action="@{/web/tasks/{id}/delete(id=${task.id})}" method="post"
+                      onsubmit="return confirm('Bạn có chắc muốn xóa task này?')">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-danger" style="width:100%;justify-content:center">
+                        <i class="bi bi-trash"></i> Xóa Task
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</th:block>
+</html>

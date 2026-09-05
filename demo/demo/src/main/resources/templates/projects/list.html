@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title>Danh sách Dự án</title></head>
+
+<th:block layout:fragment="page-title">Dự án</th:block>
+<th:block layout:fragment="page-subtitle">Quản lý tất cả dự án của bạn</th:block>
+
+<th:block layout:fragment="topbar-actions">
+    <a th:href="@{/web/projects/create}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Thêm Dự án
+    </a>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div class="card">
+        <div th:if="${#lists.isEmpty(projectsPage.content)}" class="empty-state">
+            <div class="empty-state-icon">📁</div>
+            <div class="empty-state-text">Chưa có dự án nào</div>
+            <div class="empty-state-sub">Tạo dự án đầu tiên để bắt đầu quản lý công việc</div>
+            <a th:href="@{/web/projects/create}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Tạo Dự án
+            </a>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(projectsPage.content)}">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tên dự án</th>
+                            <th>Mô tả</th>
+                            <th>Chủ sở hữu</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="project : ${projectsPage.content}">
+                            <td style="color:var(--text-muted);font-size:12px" th:text="${project.id}">1</td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(56,189,248,0.1));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                        <i class="bi bi-folder2" style="color:var(--accent-info)"></i>
+                                    </div>
+                                    <span th:text="${project.name}" style="font-weight:500">Project name</span>
+                                </div>
+                            </td>
+                            <td style="font-size:13px;color:var(--text-secondary);max-width:300px">
+                                <span th:if="${project.description != null and !#strings.isEmpty(project.description)}"
+                                      th:text="${#strings.abbreviate(project.description, 80)}">Description</span>
+                                <span th:unless="${project.description != null and !#strings.isEmpty(project.description)}"
+                                      style="color:var(--text-muted)">—</span>
+                            </td>
+                            <td style="font-size:13px;color:var(--text-secondary)"
+                                th:text="${project.user != null ? project.user.name : '—'}">—</td>
+                            <td style="font-size:13px;color:var(--text-secondary)"
+                                th:text="${project.createdAt != null ? #temporals.format(project.createdAt, 'dd/MM/yyyy') : '—'}">—</td>
+                            <td>
+                                <div style="display:flex;gap:6px">
+                                    <a th:href="@{/web/projects/{id}/edit(id=${project.id})}"
+                                       class="btn btn-secondary btn-sm" title="Chỉnh sửa">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form th:action="@{/web/projects/{id}/delete(id=${project.id})}" method="post"
+                                          onsubmit="return confirm('Xóa dự án này? Tất cả task liên quan có thể bị ảnh hưởng.')">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:href="@{/web/projects(page=${currentPage - 1})}"
+                   th:classappend="${currentPage == 0} ? 'disabled' : ''"
+                   class="page-link">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:href="@{/web/projects(page=${i})}"
+                       th:text="${i + 1}"
+                       th:classappend="${i == currentPage} ? 'active' : ''"
+                       class="page-link">1</a>
+                </th:block>
+                <a th:href="@{/web/projects(page=${currentPage + 1})}"
+                   th:classappend="${currentPage >= totalPages - 1} ? 'disabled' : ''"
+                   class="page-link">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</th:block>
+</html>

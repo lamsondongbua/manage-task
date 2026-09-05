@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Dashboard</title>
+</head>
+
+<th:block layout:fragment="page-title">Dashboard</th:block>
+<th:block layout:fragment="page-subtitle">Xin chào trở lại! 👋</th:block>
+
+<th:block layout:fragment="topbar-actions">
+    <a th:href="@{/web/tasks/create}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Thêm Task
+    </a>
+</th:block>
+
+<th:block layout:fragment="content">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="bi bi-check2-square"></i></div>
+            <div>
+                <div class="stat-value" th:text="${totalTasks}">0</div>
+                <div class="stat-label">Tổng số Task</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="bi bi-folder2-open"></i></div>
+            <div>
+                <div class="stat-value" th:text="${totalProjects}">0</div>
+                <div class="stat-label">Tổng số Dự án</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+            <div>
+                <div class="stat-value" th:text="${completedToday}">—</div>
+                <div class="stat-label">Hoàn thành hôm nay</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
+            <div>
+                <div class="stat-value" th:text="${dueSoonTasks}">—</div>
+                <div class="stat-label">Sắp đến hạn</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two columns: recent tasks + recent projects -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+        <!-- Recent Tasks -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="bi bi-check2-square" style="color:var(--accent-primary)"></i> Task gần đây</span>
+                <a th:href="@{/web/tasks}" class="btn btn-secondary btn-sm">Xem tất cả</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(recentTasks)}" class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <div class="empty-state-text">Chưa có task nào</div>
+                <a th:href="@{/web/tasks/create}" class="btn btn-primary btn-sm">Tạo task đầu tiên</a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(recentTasks)}">
+                <div th:each="task : ${recentTasks}"
+                     style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-color)">
+                    <div style="flex:1;min-width:0">
+                        <a th:href="@{/web/tasks/{id}(id=${task.id})}"
+                           th:text="${task.title}"
+                           style="font-weight:500;font-size:14px;color:var(--text-primary);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                            Task title
+                        </a>
+                        <span th:if="${task.project != null}"
+                              th:text="${task.project.name}"
+                              style="font-size:11px;color:var(--text-muted)">Project</span>
+                    </div>
+                    <span th:switch="${task.status?.name()}">
+                        <span th:case="'TODO'" class="badge badge-todo">To Do</span>
+                        <span th:case="'IN_PROGRESS'" class="badge badge-in-progress">In Progress</span>
+                        <span th:case="'DONE'" class="badge badge-done">Done</span>
+                        <span th:case="'CANCELLED'" class="badge badge-cancelled">Cancelled</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Projects -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title"><i class="bi bi-folder2-open" style="color:var(--accent-info)"></i> Dự án gần đây</span>
+                <a th:href="@{/web/projects}" class="btn btn-secondary btn-sm">Xem tất cả</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(recentProjects)}" class="empty-state">
+                <div class="empty-state-icon">📁</div>
+                <div class="empty-state-text">Chưa có dự án nào</div>
+                <a th:href="@{/web/projects/create}" class="btn btn-primary btn-sm">Tạo dự án đầu tiên</a>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(recentProjects)}">
+                <div th:each="project : ${recentProjects}"
+                     style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-color)">
+                    <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(56,189,248,0.1));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <i class="bi bi-folder2" style="color:var(--accent-info)"></i>
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <div th:text="${project.name}"
+                             style="font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                            Project name
+                        </div>
+                        <div th:text="${project.createdAt != null ? #temporals.format(project.createdAt, 'dd/MM/yyyy') : ''}"
+                             style="font-size:11px;color:var(--text-muted)"></div>
+                    </div>
+                    <a th:href="@{/web/projects/{id}/edit(id=${project.id})}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</th:block>
+</html>

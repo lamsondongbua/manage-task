@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title th:text="${isEdit} ? 'Chỉnh sửa Dự án' : 'Tạo Dự án mới'">Project Form</title></head>
+
+<th:block layout:fragment="page-title"
+          th:text="${isEdit} ? 'Chỉnh sửa Dự án' : 'Tạo Dự án mới'">Project Form</th:block>
+<th:block layout:fragment="page-subtitle"
+          th:text="${isEdit} ? 'Cập nhật thông tin dự án' : 'Điền thông tin để tạo dự án mới'">Subtitle</th:block>
+
+<th:block layout:fragment="topbar-actions">
+    <a th:href="@{/web/projects}" class="btn btn-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+</th:block>
+
+<th:block layout:fragment="content">
+    <div style="max-width:600px">
+        <div class="card">
+            <form th:action="${isEdit} ? @{/web/projects/{id}/edit(id=${projectId})} : @{/web/projects/create}"
+                  th:object="${projectForm}"
+                  method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label class="form-label" for="name">
+                        <i class="bi bi-folder2-open"></i> Tên dự án <span style="color:var(--accent-danger)">*</span>
+                    </label>
+                    <input type="text" id="name" th:field="*{name}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                           placeholder="Nhập tên dự án..."/>
+                    <div class="form-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label" for="description">
+                        <i class="bi bi-text-paragraph"></i> Mô tả
+                    </label>
+                    <textarea id="description" th:field="*{description}"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Mô tả về dự án..."></textarea>
+                </div>
+
+                <!-- Buttons -->
+                <div style="display:flex;gap:12px;margin-top:8px">
+                    <button type="submit" class="btn btn-primary">
+                        <i th:class="${isEdit} ? 'bi bi-check-lg' : 'bi bi-plus-lg'"></i>
+                        <span th:text="${isEdit} ? 'Lưu thay đổi' : 'Tạo Dự án'">Submit</span>
+                    </button>
+                    <a th:href="@{/web/projects}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+</html>

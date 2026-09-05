@@ -1,0 +1,50 @@
+services:
+
+  # ========================= PostgreSQL =========================
+  postgres:
+    image: postgres:16-alpine
+    container_name: manage-task-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: manage-task
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "2004"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d manage-task"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================= Backend (Spring Boot) =========================
+  backend:
+    build:
+      context: ./demo/demo
+      dockerfile: Dockerfile
+    container_name: manage-task-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/manage-task
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "2004"
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-a3f8b2c1e5d7f9a0b4c6e8d2f1a7b3c5d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  postgres_data:
