@@ -539,7 +539,7 @@ function ApiOverviewSection() {
         <motion.p variants={itemV} className="api-swagger-note">
           📖 Tài liệu đầy đủ tại{" "}
           <a
-            href={`${import.meta.env.VITE_API_URL}/swagger-ui.html`}
+            href={`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/swagger-ui/index.html`}
             target="_blank"
             rel="noreferrer"
           >
@@ -703,7 +703,7 @@ export default function EditionsPage() {
           </a>
           <div className="ed-nav-right">
             <a
-              href={`${import.meta.env.VITE_API_URL}/swagger-ui.html`}
+              href={`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/swagger-ui/index.html`}
               target="_blank"
               rel="noreferrer"
               className="ed-nav-link"
@@ -719,7 +719,7 @@ export default function EditionsPage() {
               API Docs
             </a>
             <motion.a
-              href={`${import.meta.env.VITE_API_URL || "http://localhost:8080"}`}
+              href={`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/web/login`}
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");
@@ -800,7 +800,7 @@ export default function EditionsPage() {
                 </svg>
               </motion.a>
               <motion.a
-                href={`${import.meta.env.VITE_API_URL}/swagger-ui.html`}
+                href={`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/swagger-ui/index.html`}
                 target="_blank"
                 rel="noreferrer"
                 className="ed-btn-secondary"
